@@ -1,12 +1,11 @@
-package cn.itcast.netty.netty.level1.demo05;
+package cn.itcast.netty.netty.level1.client.demo02;
 
 import java.util.Date;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
-public class MyServerHanlder extends ChannelHandlerAdapter{
-
+public class MyClientHanlder extends ChannelHandlerAdapter {
 	/*
 	 * channelAction 
 	 * 
@@ -16,12 +15,10 @@ public class MyServerHanlder extends ChannelHandlerAdapter{
 	 * 当客户端主动链接服务端的链接后，这个通道就是活跃的了。也就是客户端与服务端建立了通信通道并且可以传输数据
 	 * 
 	 */
-	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println(ctx.channel().localAddress().toString()+" channelActive");
-		// 通知您已经链接上客户端
-		String str = "您已经开启与服务端链接"+" "+new Date()+" "+ctx.channel().localAddress() + "\r\n";
-		ctx.writeAndFlush(str);
+		
+		System.out.println("客户端与服务端通道-开启："+ctx.channel().localAddress()+"channelActive");
+		
 	}
 	
 	/*
@@ -33,9 +30,10 @@ public class MyServerHanlder extends ChannelHandlerAdapter{
 	 * 当客户端主动断开服务端的链接后，这个通道就是不活跃的。也就是说客户端与服务端的关闭了通信通道并且不可以传输数据
 	 * 
 	 */
-	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println(ctx.channel().localAddress().toString()+" channelInactive");
+		
+		System.out.println("客户端与服务端通道-关闭："+ctx.channel().localAddress()+"channelInactive");
+		
 	}
 	
 	/*
@@ -48,15 +46,20 @@ public class MyServerHanlder extends ChannelHandlerAdapter{
 	 * 但是这个数据在不进行解码时它是ByteBuf类型的后面例子我们在介绍
 	 * 
 	 */
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	public void channelRead(ChannelHandlerContext ctx, Object msg)
+			throws Exception {
+		
 		//注意此处已经不需要手工解码了
-		System.out.println(new Date()+" "+msg);
-		//通知您已经链接上客户端
-		// 这里msg会被客户端与服务端连续拼接从而会引起长度越界异常
-		String str = "服务端收到："+new Date()+" "+ msg + "\r\n";
+		System.out.println(ctx.channel().id()+" "+new Date()+" "+msg);
+		
+		//通知您已经链接上客户端[给客户端穿回去的数据加个换行]
+		//String str = "服务端收到："+ctx.channel().id()+new Date()+" "+msg+"\r\n";
+		
+		//通知您已经链接上客户端[给客户端穿回去的数据加个换行][能用于测试发送量与接受量，在网络调试助手下可以观察到]
+		String str = (String) msg+"\r\n";
+		
+		//发送给服务端
 		ctx.writeAndFlush(str);
-
 	}
 	
 	/*
@@ -70,9 +73,8 @@ public class MyServerHanlder extends ChannelHandlerAdapter{
 	 * ctx.flush()
 	 * 
 	 */
-	@Override
 	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-		ctx.flush() ;
+		ctx.flush();
 	}
 	
 	/*
@@ -84,9 +86,10 @@ public class MyServerHanlder extends ChannelHandlerAdapter{
 	 * 抓住异常，当发生异常的时候，可以做一些相应的处理，比如打印日志、关闭链接
 	 * 
 	 */
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+			throws Exception {
 		ctx.close();
-		System.out.println("异常信息：\r\n"+cause.getMessage());
+		System.out.println("异常退出:"+cause.getMessage());
 	}
+
 }
