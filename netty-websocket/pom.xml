@@ -23,5 +23,48 @@
   </dependencies>
   <build>
     <finalName>netty-websocket</finalName>
+    <plugins>
+    	<plugin>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-maven-plugin</artifactId>
+			<version>9.2.18.v20160721</version>
+			<configuration>
+				<scanIntervalSeconds>3</scanIntervalSeconds>
+				<stopKey>foo</stopKey>
+				<stopPort>9999</stopPort>
+				<contextPath>/</contextPath>
+				<connectors>
+					<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+						<port>80</port>
+					</connector>
+				</connectors>
+				<systemProperties>
+			      <systemProperty>
+			        <name>org.eclipse.jetty.util.URI.charset</name>
+			        <value>UTF-8</value>
+			      </systemProperty>
+			    </systemProperties>
+			    <webAppConfig>
+			      <defaultsDescriptor>src/main/resources/webdefault.xml</defaultsDescriptor>
+			    </webAppConfig>
+			</configuration>
+		</plugin>
+		
+		<!-- Maven Tomcat Plugin -->
+		<plugin>
+		  <groupId>org.apache.tomcat.maven</groupId>
+		  <artifactId>tomcat7-maven-plugin</artifactId>
+		  <version>2.2</version>
+		  <configuration>
+		    <!--Deploy to server-->
+		    <url>http://localhost:8080/manager/text</url>
+		    <server>Tomcat8</server>
+		    <username>admin</username>
+		    <password>admin</password>
+		    <path>/</path>
+		    <port>80</port>
+		  </configuration>
+		</plugin>
+    </plugins>
   </build>
 </project>
